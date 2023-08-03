@@ -12,7 +12,10 @@ int main() {
 
     json_object_set_new(sJsonRoot, "test", sJsonObj);
 
-    printf("Json Test[%s]", json_dumps(sJsonRoot, JSON_ENCODE_ANY));
+    printf("Json Test[%s]\n", json_dumps(sJsonRoot, JSON_ENCODE_ANY));
+
+    test_base64_encoding();
+    test_base64_decoding();
 
     return 0;
 }

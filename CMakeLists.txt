@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.16)
 project(st2json C)
 
 set(CMAKE_C_STANDARD 99)
 
 include_directories(jansson)
+include_directories(base64)
 
 set(SOURCES
         jansson/dump.c
@@ -17,6 +18,9 @@ set(SOURCES
         jansson/strconv.c
         jansson/utf.c
         jansson/value.c
+
+        base64/base64.c
+
         main.c
         )
 
