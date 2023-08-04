@@ -16,6 +16,23 @@ typedef struct structDataList
 
 } structDataList;
 
+typedef void (*print_format)(int aValue);
+void print_1(int aValue) {
+    printf("Print-1[%d]\n", aValue);
+}
+void print_2(int aValue) {
+    printf("Print-2[%d]\n", aValue);
+}
+void print_3(int aValue) {
+    printf("Print-3[%d]\n", aValue);
+}
+
+print_format gPrintFuncList[3] = {
+    print_1,
+    print_2,
+    print_3
+};
+
 json_t* serialize_structData(void* aValue) {   
     structData* sValue = (structData*)aValue;
     json_t* sJsonRoot = json_object();
@@ -116,6 +133,28 @@ void file_encoding_decoding() {
     printf("sBuffer - sDecode memcpy:%d\n", memcmp(sBinary, sDecode, sBinarySize));
 }
 
+json_t* serialize_function(void* aValue) {
+    print_format sValue = (print_format*)aValue;
+    int sFuncIndex = 0;
+    
+    for (sFuncIndex = 0; sFuncIndex < 3; sFuncIndex++) {
+        if (gPrintFuncList[sFuncIndex] == sValue) break;
+    }
+
+    json_t* sJsonRoot = json_object();
+
+    json_object_set_new(sJsonRoot, "mPrintFunc", json_integer(sFuncIndex));
+
+    return sJsonRoot;
+}
+
+void deserialize_function(json_t* aJsonRoot, void** aValue) {
+    int sFuncIndex;
+
+    sFuncIndex = json_integer_value(json_object_get(aJsonRoot, "mPrintFunc"));
+    *aValue = gPrintFuncList[sFuncIndex];
+}
+
 int main() {
     printf("Hello, World2!\n");
 
@@ -158,6 +197,15 @@ int main() {
     print_structDataList(&sstructDataList2);
 
     file_encoding_decoding();
+
+    print_format fp1 = print_1;
+    print_format fp2 = print_2;
+    print_format fp3 = print_3;
+
+    sJsonRoot = serialize_function(fp1);
+    deserialize_function(sJsonRoot, &fp1);
+
+    fp1(5);
 
     return 0;
 }
