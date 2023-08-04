@@ -2,22 +2,22 @@
 #include "jansson/jansson.h"
 #include "base64.h"
 
-typedef struct qpcCrtColumn
+typedef struct structData
 {
     unsigned int mType;
     char mColName[256];
-} qpcCrtColumn;
+} structData;
 
-typedef struct qpcCrtColumnList
+typedef struct structDataList
 {
     unsigned int mCount;           /* Number of expressions on the list */
     unsigned int mAlloc;           /* Number of entries allocated below */
-    qpcCrtColumn mColData[32];
+    structData mColData[32];
 
-} qpcCrtColumnList;
+} structDataList;
 
-json_t* serialize_qpcCrtColumn(void* aValue) {   
-    qpcCrtColumn* sValue = (qpcCrtColumn*)aValue;
+json_t* serialize_structData(void* aValue) {   
+    structData* sValue = (structData*)aValue;
     json_t* sJsonRoot = json_object();
     
     json_object_set_new(sJsonRoot, "mType", json_integer(sValue->mType));
@@ -26,20 +26,20 @@ json_t* serialize_qpcCrtColumn(void* aValue) {
     return sJsonRoot;
 }
 
-void deserialize_qpcCrtColumn(json_t* aJsonRoot, void* aValue) {
-    qpcCrtColumn* sValue = (qpcCrtColumn*)aValue;
+void deserialize_structData(json_t* aJsonRoot, void* aValue) {
+    structData* sValue = (structData*)aValue;
 
     sValue->mType = json_integer_value(json_object_get(aJsonRoot, "mType"));
     strcpy(sValue->mColName, json_string_value(json_object_get(aJsonRoot, "mColName")));
 }
 
-void print_qpcCrtColumn(void* aValue) {
-    qpcCrtColumn* sValue = (qpcCrtColumn*)aValue;
-    printf("qpcCrtColumn mType[%d] mColName[%s]\n", sValue->mType, sValue->mColName);
+void print_structData(void* aValue) {
+    structData* sValue = (structData*)aValue;
+    printf("structData mType[%d] mColName[%s]\n", sValue->mType, sValue->mColName);
 }
 
-json_t* serialize_qpcCrtColumnList(void* aValue) {
-    qpcCrtColumnList* sValue = (qpcCrtColumnList*)aValue;
+json_t* serialize_structDataList(void* aValue) {
+    structDataList* sValue = (structDataList*)aValue;
     json_t* sJsonRoot = json_object();
 
     json_object_set_new(sJsonRoot, "mCount", json_integer(sValue->mCount));
@@ -47,30 +47,30 @@ json_t* serialize_qpcCrtColumnList(void* aValue) {
 
     json_t* sJsonArray = json_array();
     for (int i = 0; i < sValue->mCount; i++) {
-        json_array_append_new(sJsonArray, serialize_qpcCrtColumn(&sValue->mColData[i]));
+        json_array_append_new(sJsonArray, serialize_structData(&sValue->mColData[i]));
     }
     json_object_set_new(sJsonRoot, "mColData", sJsonArray);
 
     return sJsonRoot;
 }
 
-void deserialize_qpcCrtColumnList(json_t* aJsonRoot, void* aValue) {
-    qpcCrtColumnList* sValue = (qpcCrtColumnList*)aValue;
+void deserialize_structDataList(json_t* aJsonRoot, void* aValue) {
+    structDataList* sValue = (structDataList*)aValue;
 
     sValue->mCount = json_integer_value(json_object_get(aJsonRoot, "mCount"));
     sValue->mAlloc = json_integer_value(json_object_get(aJsonRoot, "mAlloc"));
 
     json_t* sJsonArrayObj = json_object_get(aJsonRoot, "mColData");
     for (int i = 0; i < sValue->mCount; i++) {
-        deserialize_qpcCrtColumn(json_array_get(sJsonArrayObj, i), &sValue->mColData[i]);
+        deserialize_structData(json_array_get(sJsonArrayObj, i), &sValue->mColData[i]);
     }
 }
 
-void print_qpcCrtColumnList(void* aValue) {
-    qpcCrtColumnList* sValue = (qpcCrtColumnList*)aValue;
+void print_structDataList(void* aValue) {
+    structDataList* sValue = (structDataList*)aValue;
 
-    printf("qpcCrtColumnList mCount[%d] mAlloc[%d]\n", sValue->mCount, sValue->mAlloc);
-    for (int i = 0; i < sValue->mCount; i++) print_qpcCrtColumn(&sValue->mColData[i]);
+    printf("structDataList mCount[%d] mAlloc[%d]\n", sValue->mCount, sValue->mAlloc);
+    for (int i = 0; i < sValue->mCount; i++) print_structData(&sValue->mColData[i]);
 }
 
 json_t* serialize_binary(void* aValue, unsigned int aSize) {
@@ -134,28 +134,28 @@ int main() {
 
     printf("\n\n");
 
-    qpcCrtColumnList sQpcCrtColumnList;
-    sQpcCrtColumnList.mAlloc = 15;
-    sQpcCrtColumnList.mCount = 3;
+    structDataList sstructDataList;
+    sstructDataList.mAlloc = 15;
+    sstructDataList.mCount = 3;
 
-    sQpcCrtColumnList.mColData[0].mType = 10;
-    snprintf(sQpcCrtColumnList.mColData[0].mColName, 256, "col-1");
-    sQpcCrtColumnList.mColData[1].mType = 11;
-    snprintf(sQpcCrtColumnList.mColData[1].mColName, 256, "col-2");
-    sQpcCrtColumnList.mColData[2].mType = 12;
-    snprintf(sQpcCrtColumnList.mColData[2].mColName, 256, "col-3");
+    sstructDataList.mColData[0].mType = 10;
+    snprintf(sstructDataList.mColData[0].mColName, 256, "col-1");
+    sstructDataList.mColData[1].mType = 11;
+    snprintf(sstructDataList.mColData[1].mColName, 256, "col-2");
+    sstructDataList.mColData[2].mType = 12;
+    snprintf(sstructDataList.mColData[2].mColName, 256, "col-3");
 
-    json_t* sJsonRoott = serialize_qpcCrtColumnList(&sQpcCrtColumnList);
+    json_t* sJsonRoott = serialize_structDataList(&sstructDataList);
     json_error_t sJsonError;
     char* sDumpStr = json_dumps(sJsonRoott, JSON_ENCODE_ANY);
 
     printf("[%s\n", sDumpStr);
 
     sJsonRoot = json_loads(sDumpStr, JSON_ENCODE_ANY, &sJsonError);
-    qpcCrtColumnList sQpcCrtColumnList2;
-    deserialize_qpcCrtColumnList(sJsonRoot, &sQpcCrtColumnList2);
+    structDataList sstructDataList2;
+    deserialize_structDataList(sJsonRoot, &sstructDataList2);
 
-    print_qpcCrtColumnList(&sQpcCrtColumnList2);
+    print_structDataList(&sstructDataList2);
 
     file_encoding_decoding();
 
