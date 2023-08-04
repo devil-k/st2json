@@ -5,6 +5,7 @@ const char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy
 char* base64_encode(const unsigned char* data, size_t input_length, size_t* output_length) {
     *output_length = 4 * ((input_length + 2) / 3); // Calculate the output length
     char* encoded_data = (char*)malloc(*output_length + 1); // Allocate memory for the encoded data
+    memset(encoded_data, 0, (*output_length + 1));
     if (encoded_data == NULL) {
         return NULL; // Memory allocation failed
     }
@@ -54,6 +55,7 @@ unsigned char* base64_decode(const char* encoded_data, size_t input_length, size
     if (encoded_data[input_length - 2] == '=') (*output_length)--;
 
     unsigned char* decoded_data = (unsigned char*)malloc(*output_length);
+    memset(decoded_data, 0, (*output_length));
     if (decoded_data == NULL) {
         return NULL; // Memory allocation failed
     }

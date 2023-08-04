@@ -73,6 +73,49 @@ void print_qpcCrtColumnList(void* aValue) {
     for (int i = 0; i < sValue->mCount; i++) print_qpcCrtColumn(&sValue->mColData[i]);
 }
 
+json_t* serialize_binary(void* aValue, unsigned int aSize) {
+    unsigned char* sValue = (unsigned char*)aValue;
+    json_t* sJsonRoot = json_object();
+
+    json_object_set_new(sJsonRoot, "mBinary", json_string(sValue));
+
+    return sJsonRoot;
+}
+
+void deserialize_binary(json_t* aJsonRoot, void** aValue, unsigned int aSize) {
+    unsigned char* sValue;
+
+    sValue = json_string_value(json_object_get(aJsonRoot, "mBinary"));
+    *aValue = sValue;
+}
+
+void file_encoding_decoding() {
+    unsigned char sBinary[256];
+    size_t sBinarySize = 255;
+    for (int i = 0; i <= sBinarySize; i++) sBinary[i] = (unsigned char)i+1;
+    printf("Binary : [%s]\n", sBinary);
+
+
+    size_t sOutLen;
+    char* sEncode = base64_encode(sBinary, sBinarySize, &sOutLen);
+
+    json_t* sJsonRoot;
+    json_error_t sJsonError;
+
+    sJsonRoot = serialize_binary(sEncode, sOutLen);
+    char* sDumpStr = json_dumps(sJsonRoot, JSON_ENCODE_ANY);
+    printf("Json : [%s]\n", sDumpStr);
+
+    sJsonRoot = json_loads(sDumpStr, JSON_ENCODE_ANY, &sJsonError);
+    deserialize_binary(sJsonRoot, &sDumpStr, sOutLen);
+
+    unsigned char* sDecode = base64_decode(sDumpStr, sOutLen, &sOutLen);
+    printf("Binary : [%s]\n", sDecode);
+
+    printf("sBuffer - sEncode memcpy:%d\n", memcmp(sBinary, sEncode, sBinarySize));
+    printf("sBuffer - sDecode memcpy:%d\n", memcmp(sBinary, sDecode, sBinarySize));
+}
+
 int main() {
     printf("Hello, World2!\n");
 
@@ -113,6 +156,8 @@ int main() {
     deserialize_qpcCrtColumnList(sJsonRoot, &sQpcCrtColumnList2);
 
     print_qpcCrtColumnList(&sQpcCrtColumnList2);
+
+    file_encoding_decoding();
 
     return 0;
 }
